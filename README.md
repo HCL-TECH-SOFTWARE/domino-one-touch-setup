@@ -3,7 +3,7 @@
 # Domino One Touch Setup (OTS)
 
 [Domino One Touch Setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch.html) (in short: OTS) was introduced in Domino 12.0 to simplify Domino first and additional server setup.  
-OTS is of special interest when automating a Domino Container setup on [Docker](https://www.docker.com/) or [Podman](https://podman.io/) and [Kubernetes](https://kubernetes.io/). But it is also helpful on Windows and AIX.  
+OTS is of special interest when automating a Domino Container setup on [Docker](https://www.docker.com/) or [Podman](https://podman.io/) and [Kubernetes](https://kubernetes.io/). But it is also helpful for normal servers on Windows, Linux and AIX.  
 For business partners OTS opens a very flexible way to include their application setup during Domino setup.
 
 There are two different methods to setup a server:
@@ -11,9 +11,11 @@ There are two different methods to setup a server:
 
 ## Environment variable setup
 
-[OTS Environment variable setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch_preparing_sysenv.html) is a very easy way to setup a Domino server.
+OTS Environment variable setup is a very easy way to setup a Domino server.
 The setup provides already more setup options then the classical Domino setup including CertMgr and ID Vault configuration.  
-Environment variables are ready from the environment variables specified before starting the server.
+Environment variables are read from the environment variables specified before starting the server.
+
+Check the [OTS Environment variable setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch_preparing_sysenv.html) documentation for details.
 
 
 ## JSON file configuration setup
