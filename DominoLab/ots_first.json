@@ -18,8 +18,6 @@
 
     "org": {
       "orgName": "DominoLab",
-      "useExistingCertifierID": false,
-      "certifierIDFilePath": "/local/notesdata/cert.id",
       "certifierPassword": "{{ SERVERSETUP_ORG_CERTIFIERPASSWORD }}"
     },
     "admin": {
