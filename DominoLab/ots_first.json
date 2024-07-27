@@ -1,0 +1,358 @@
+{
+  "serverSetup": {
+    "server": {
+      "type": "first",
+      "name": "darwin",
+      "domainName": "DominoLab",
+      "title": "Darwin - Admin Server",
+      "password": null,
+      "minPasswordLength": 0,
+      "serverTasks": "replica,router,update,amgr,adminp,http,nomad"
+    },
+
+    "network": {
+      "hostName": "darwin.{{ SERVERSETUP_INTERNET_DOMAIN }}",
+      "enablePortEncryption": true,
+      "enablePortCompression": true
+    },
+
+    "org": {
+      "orgName": "DominoLab",
+      "useExistingCertifierID": false,
+      "certifierIDFilePath": "/local/notesdata/cert.id",
+      "certifierPassword": "{{ SERVERSETUP_ORG_CERTIFIERPASSWORD }}"
+    },
+    "admin": {
+      "firstName": "Local",
+      "lastName": "Admin",
+      "password": "{{ SERVERSETUP_ADMIN_PASSWORD }}",
+      "IDFilePath": "admin.id"
+    },
+
+    "notesINI": {
+      "Create_R85_log": "1",
+      "LOG_REPLICATION": "0",
+      "LOG_SESSIONS": "0",
+      "HTTPPublicURLs": "/iwaredir.nsf/*:/.well-known*:/*.id",
+      "ENABLE_SNI": "1",
+      "HTTPEnableMethods": "GET,POST,PUT,DELETE,HEAD",
+      "ADMIN_CLIENT_SKIP_DOMINO": "1",
+      "COMPRESS_LZ1_CREATE": "1",
+      "CREATE_NIFNSF_DATABASES": "1",
+      "NIFNSFENABLE": "1",
+      "DAOS_ENCRYPT_NLO": "0",
+      "DAOS_MAX_FILES_PER_SUBCONTAINER": "10000",
+      "EVENT_POOL_SIZE": "41943040",
+      "SSL_DISABLE_EXTENDED_MASTER_SECRET": "1",
+      "Server_MinPossibleTransTime": "1500",
+      "Server_MaxPossibleTransTime": "20000000",
+      "NSF_BUFFER_POOL_SIZE_MB": "256",
+      "FT_FLY_INDEX_OFF": "1",
+      "UPDATE_FULLTEXT_THREAD": "1",
+      "FTG_USE_SYS_MEMORY": "1",
+      "NOMAD_WEB_HOST": "darwin.{{ SERVERSETUP_INTERNET_DOMAIN }}",
+      "DisableSmartServer": "1",
+      "SERVER_RESTART_DELAY": "1",
+      "CertMgr_ACCEPT_TOU" :"1",
+      "debug_initterm": "0",
+      "HttpDisableJVM": "1",
+      "EnableJavaAgents": "1"
+    },
+
+    "security": {
+      "ACL": {
+        "prohibitAnonymousAccess": true,
+        "addLocalDomainAdmins": true
+      },
+
+      "TLSSetup": {
+        "method": "dominoMicroCA",
+        "CAKeyType": "ES256",
+        "TLSKeyType": "ES256"
+      }
+    },
+
+    "autoRegister": {
+      "IDPath": "/local/notesdata/domino/html",
+      "serverNames" : ["newton", "turing"]
+    },
+
+    "registerUsers": {
+      "defaults": {
+        "saveIDToPersonDocument": false,
+        "password": "{{ SERVERSETUP_ADMIN_PASSWORD }}",
+        "enableFullTextIndex": true,
+        "certificateExpirationMonths": 42
+      },
+      "users": [
+        {
+          "firstName": "Junior",
+          "lastName": "Admin",
+          "shortName": "junioradmin",
+          "saveIDToPersonDocument": false,
+          "internetAddress": "junior.admin@{{ SERVERSETUP_INTERNET_DOMAIN }}",
+          "IDFilePath": "junioradmin.id",
+          "password": "{{ SERVERSETUP_ADMIN_PASSWORD }}",
+          "mailFilePath": "mail/junioradmin.nsf"
+        },
+        {
+          "firstName": "Senior",
+          "lastName": "Admin",
+          "shortName": "senioradmin",
+          "saveIDToPersonDocument": false,
+          "internetAddress": "senior.admin@{{ SERVERSETUP_INTERNET_DOMAIN }}",
+          "IDFilePath": "senioradmin.id",
+          "password": "{{ SERVERSETUP_ADMIN_PASSWORD }}",
+          "mailFilePath": "mail/senioradmin.nsf"
+        }
+      ]
+    }
+  },
+  "IDVault": {
+    "name": "O=DominoLab_vault",
+    "description": "Avengers Lab Vault",
+    "IDFile": "vault.id",
+    "IDPassword": "{{ SERVERSETUP_ORG_CERTIFIERPASSWORD }}",
+    "path": "IBM_ID_VAULT/DominoLab_vault.nsf",
+    "passwordReset": {
+      "helpText": "See an admin for a password reset."
+    },
+    "securitySettingsPolicy": {
+      "name": "DominoLab Vault Security Settings Policy",
+      "description": "DominoLab Vault Security Settings"
+    },
+    "masterPolicy": {
+      "description": "DominoLab Vault Master Policy Description"
+    }
+  },
+  "autoConfigPreferences": {
+    "startServerAfterConfiguration": true,
+    "deleteInputFileAfterProcessing": true,
+    "consoleLogOutput": {
+      "show": "all",
+      "pauseOnErrorSeconds": 16
+    }
+  },
+  "appConfiguration": {
+    "databases": [
+      {
+        "filePath": "certstore.nsf",
+        "action": "update",
+        "documents": [
+          {
+            "action": "update",
+            "computeWithForm": true,
+            "findDocument": {
+              "Form": "KeyFile"
+            },
+            "items": {
+              "Status" : "O",
+              "Provider" : "A",
+              "ReqKeyAlg" : "E",
+              "AcmeChallengeType" : "H",
+              "AcmeAccount" : "{{ SERVERSETUP_ACME_ACCOUNT }}"
+            }
+          }
+        ]
+      },
+
+      {
+        "filePath": "names.nsf",
+        "action": "update",
+        "documents": [
+          {
+            "action": "update",
+            "findDocument": {
+              "Type": "Group",
+              "ListName": "LocalDomainAdmins"
+            },
+            "items": {
+              "Members": [ "CN=Local Admin/O=DominoLab", "CN=Senior Admin/O=DominoLab", "CN=Junior Admin/O=DominoLab"]
+            }
+          },
+
+          {
+            "action": "update",
+            "findDocument": {
+              "Type": "Server",
+              "ServerName": "CN=darwin/O=DominoLab"
+            },
+            "items": {
+              "AdminPMaxThreads": 1,
+              "AdminPInterval": 1,
+              "HTTP_SSLKeyFile": "darwin.{{ SERVERSETUP_INTERNET_DOMAIN }}",
+              "TRANSLOG_AutoFixup": "",
+              "TRANSLOG_MaxSize": 1024,
+              "TRANSLOG_Path": "/local/translog",
+              "TRANSLOG_Performance": "2",
+              "TRANSLOG_Status": "1",
+              "TRANSLOG_Style": "0",
+              "TRANSLOG_UseAll": "0",
+              "QtaMthd": "1",
+              "DAOSEnable": "0",
+              "DAOSBasePath": "/local/daos",
+              "DAOSMinObjSize": "256000",
+              "DAOS_ENCRYPT_NLO": "0",
+              "HTTP_HomeURL": "iwaredir.nsf",
+              "FullAdmin": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "CreateAccess": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "ReplicaAccess": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "UnrestrictedList": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "OnBehalfOfLst": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "RestrictedList": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "PTAccess": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "PTClients": [
+                "LocalDomainAdmins",
+                "LocalDomainServers"
+              ],
+              "HTTP_EnableSessionAuth": "1",
+              "HTTP_TCPNP": "1",
+              "HTTP_AllowAnonymous": "0",
+              "HTTP_NormalMode": "1",
+              "HTTP_SSLMode": "1",
+              "HTTP_SSLAnonymous": "0",
+              "NSDEnbld": "1",
+              "FREnbld": "1",
+              "FltRcvryNot": "LocalDomainAdmins",
+              "ServerBuildNumber": "14.5",
+              "MajVer": 14.5
+            }
+          },
+          {
+            "action": "create",
+            "computeWithForm": true,
+            "items": {
+              "Form": "ServerConfig",
+              "UseAsDefault": "1",
+              "ServerName": "*",
+              "ILEnforce": "1",
+              "ILLockIP": "0",
+              "ILCountAgainstIP": "0",
+              "ILLogLockouts": "1",
+              "ILLogFailures": "1",
+              "ILMaxTries": 7,
+              "ILExpMinutes": 10,
+              "ILExpNum": 10,
+              "ILTimeFormat": ",minutes",
+              "ILClearNum": 10,
+              "ILClearMinutes": 10,
+              "ILTimeFormat2": ",minutes",
+              "PwdCheckInVault": "2",
+              "DCLoc": "CN=HCL Notes/O=Domino Fault Reports",
+              "DCMsgSize": 50,
+              "DCNSDSize": 40,
+              "DCDO": 10000,
+              "FAEnabled": "1",
+              "FADBs": "1"
+            }
+          }
+        ]
+      },
+
+      {
+        "filePath": "certstore.nsf",
+        "action": "update",
+        "ACL": {
+          "ACLEntries": [
+            {
+              "name": "CN=newton/O=DominoLab",
+              "level": "manager",
+              "canReplicateOrCopyDocuments": true,
+              "canDeleteDocuments": true
+            },
+            {
+              "name": "CN=turing/O=DominoLab",
+              "level": "manager",
+              "canReplicateOrCopyDocuments": true,
+              "canDeleteDocuments": true
+            }
+          ]
+        }
+      },
+
+      {
+        "action": "create",
+        "filePath": "domcfg.nsf",
+        "title": "Domino Web Server Configuration",
+        "templatePath": "domcfg5.ntf",
+        "signUsingAdminp": true,
+
+        "documents": [
+          {
+            "action": "create",
+            "items": {
+              "Form": "LoginMap",
+              "LF_LoginForm": "$$LoginUserForm",
+              "LF_LoginFormDB": "domcfg.nsf",
+              "LF_ServerType": "0",
+              "LF_IP": "",
+              "$PublicAccess": "1"
+            }
+          }
+        ]
+      },
+
+      {
+        "action": "create",
+        "filePath": "iwaredir.nsf",
+        "title": "Redirect",
+        "templatePath": "iwaredir.ntf",
+        "signUsingAdminp": true,
+
+        "documents": [
+          {
+            "action": "create",
+            "computeWithForm": true,
+            "items": {
+              "Form": "AutoLogin",
+              "ServerNameSelect": "1",
+              "RedirectMessageWebView": "Redirecting...",
+              "$LANGUAGE": "en",
+              "$ServerSettingsTable": "Select",
+              "EnableUltraliteRadioButton": "0",
+              "MobileAgentKeywords": "ipod,iphone,android,ipad",
+              "SSLPort": "443",
+              "RedirectionTime": "1",
+              "RedirectionMessageText": "Redirecting...",
+              "WMRGlobalProfileURL": "/",
+              "ServerNameChange": "0",
+              "ForceSSL": "1",
+              "OmitProtocol": "0",
+              "UseHomeMailServer": "0",
+              "LoginOptions": "0",
+              "EncryptPassword": "0",
+              "WebMailRedirectEnableDebug": "0",
+              "WebMailRedirectProfileEnable": "0",
+              "WMRVersion": "650",
+              "WMRAttachmentNames": "BLANK",
+              "MailServerDomainName": "",
+              "RevProxyServerName": "",
+              "ForcePath": ""
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+services:
+
+  darwin:
+
+    image: ${CONTAINER_IMAGE}
+    container_name: darwin
+    hostname: darwin.${SERVERSETUP_INTERNET_DOMAIN}
+    stop_grace_period: 120s
+
+    environment:
+      LANG: en_US.UTF-8
+      SetupAutoConfigure: 1
+      DominoConfigRestartWaitTime: "90"
+      SERVERSETUP_INTERNET_DOMAIN: ${SERVERSETUP_INTERNET_DOMAIN}
+      SERVERSETUP_ORG_CERTIFIERPASSWORD: ${SERVERSETUP_ORG_CERTIFIERPASSWORD}
+      SERVERSETUP_ADMIN_PASSWORD: ${SERVERSETUP_ADMIN_PASSWORD}
+
+    cap_add:
+      - SYS_PTRACE
+
+    ports:
+      - 1352:1352
+      - 80:80
+      - 443:443
+      - 9443:9443
+
+    ulimits:
+      nofile:
+        soft: 80000
+        hard: 80000
+
+    volumes:
+      - ./ots_first.json:/local/notesdata/DominoAutoConfigTemplate.json:ro
+
+    networks:
+      net:
+
+    healthcheck:
+      test: /healthcheck.sh ready
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 120s
+
+  newton:
+
+    image: ${CONTAINER_IMAGE}
+    container_name: newton
+    hostname: newton.${SERVERSETUP_INTERNET_DOMAIN}
+    stop_grace_period: 120s
+
+    environment:
+      LANG: en_US.UTF-8
+      SetupAutoConfigure: 1
+      SPECIAL_CURL_ARGS: "--retry 40 --retry-delay 5 --retry-connrefused --silent"
+      DominoConfigRestartWaitTime: "120"
+      SERVERSETUP_SERVER_IDFILEPATH: "http://darwin.${SERVERSETUP_INTERNET_DOMAIN}/newton.id"
+      SERVERSETUP_SERVER_NAME: newton
+      SERVERSETUP_SERVER_TITLE: Newton
+      SERVERSETUP_NETWORK_HOSTNAME: newton.${SERVERSETUP_INTERNET_DOMAIN}
+      SERVERSETUP_ADMIN_CN: "Senior Admin"
+      SERVERSETUP_SERVER_DOMAINNAME: DominoLab
+      SERVERSETUP_ORG_ORGNAME: DominoLab
+      SERVERSETUP_EXISTINGSERVER_CN: darwin
+      SERVERSETUP_EXISTINGSERVER_HOSTNAMEORIP: darwin.${SERVERSETUP_INTERNET_DOMAIN}
+
+    cap_add:
+      - SYS_PTRACE
+
+    ulimits:
+      nofile:
+        soft: 80000
+        hard: 80000
+
+    volumes:
+      - ./ots_additional.json:/local/notesdata/DominoAutoConfigTemplate.json:ro
+
+    networks:
+      net:
+
+    healthcheck:
+      test: /healthcheck.sh ready
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+
+    depends_on:
+      darwin:
+        condition: service_healthy
+
+  turing:
+
+    image: ${CONTAINER_IMAGE}
+    container_name: turing
+    hostname: turing.${SERVERSETUP_INTERNET_DOMAIN}
+    stop_grace_period: 120s
+
+    environment:
+      LANG: en_US.UTF-8
+      SPECIAL_CURL_ARGS: "--retry 40 --retry-delay 5 --retry-connrefused --silent"
+      SetupAutoConfigure: 1
+      DominoConfigRestartWaitTime: "120"
+      SERVERSETUP_SERVER_IDFILEPATH: "http://darwin.${SERVERSETUP_INTERNET_DOMAIN}/turing.id"
+      SERVERSETUP_SERVER_NAME: turing
+      SERVERSETUP_SERVER_TITLE: Turing
+      SERVERSETUP_NETWORK_HOSTNAME: turing.${SERVERSETUP_INTERNET_DOMAIN}
+      SERVERSETUP_ADMIN_CN: "Senior Admin"
+      SERVERSETUP_SERVER_DOMAINNAME: DominoLab
+      SERVERSETUP_ORG_ORGNAME: DominoLab
+      SERVERSETUP_EXISTINGSERVER_CN: darwin
+      SERVERSETUP_EXISTINGSERVER_HOSTNAMEORIP: darwin.${SERVERSETUP_INTERNET_DOMAIN}
+
+    cap_add:
+      - SYS_PTRACE
+
+    ulimits:
+      nofile:
+        soft: 80000
+        hard: 80000
+
+    volumes:
+      - ./ots_additional.json:/local/notesdata/DominoAutoConfigTemplate.json:ro
+
+    networks:
+      net:
+
+    healthcheck:
+      test: /healthcheck.sh ready
+      interval: 60s
+      timeout: 10s
+      retries: 2
+      start_period: 60s
+
+    depends_on:
+      darwin:
+        condition: service_healthy
+
+networks:
+
+  net:
+    driver: bridge
