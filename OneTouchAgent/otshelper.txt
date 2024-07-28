@@ -1,0 +1,258 @@
+
+' --- Supported environment variables ---
+'
+' SERVERSETUP_CLUSTER_NAME
+' SERVERSETUP_AUTOUPDATE_MODE
+'
+' SERVERSETUP_ORG_SAFEIDFILEPATH
+' SERVERSETUP_ORG_CERTIFIERIDFILEPATH
+' SERVERSETUP_ORG_CERTIFIERPASSWORD
+
+Option Declare
+
+' --- Global variables ---
+
+Dim gSession     As NotesSession
+Dim gDataDirPath As String
+Dim gDomainName  As String
+Dim gPathSep     As String
+
+
+Sub Initialize
+
+	Call OneTouchSetup()
+
+End Sub
+
+Sub OneTouchSetup()
+
+	Dim CertifierPath   As String
+	Dim Password        As String
+	Dim SafeID          As String
+	Dim ClusterName     As String
+	Dim ProductInfoMode As String
+
+	On Error GoTo ErrorHandler
+
+	Set gSession = New NotesSession
+	gDataDirPath = gSession.GetEnvironmentString ("Directory", True)
+	gDomainName  = gSession.GetEnvironmentString ("Domain",    True)
+
+	LogMessage "OnTouchSetup helper agent started for domain " + gDomainName
+
+	If (1 = Instr (gSession.Platform, "Windows")) Then
+		gPathSep = "\"
+	Else
+		gPathSep = "/"
+	End If
+
+	' Get setup parameters passed via notes.ini
+
+	Password        = GetEnvironvarWithDefault ("SERVERSETUP_ORG_CERTIFIERPASSWORD", "")
+	ClusterName     = GetEnvironvarWithDefault ("SERVERSETUP_CLUSTER_NAME", "")
+	ProductInfoMode = GetEnvironvarWithDefault ("SERVERSETUP_AUTOUPDATE_MODE", "")
+
+	CertifierPath   = BuildAndCheckPath (GetEnvironvarWithDefault ("SERVERSETUP_ORG_CERTIFIERIDFILEPATH", "cert.id"))
+	SafeID          = BuildAndCheckPath (GetEnvironvarWithDefault ("SERVERSETUP_ORG_SAFEIDFILEPATH",      "safe.id"))
+
+	' Remove setup parameters from notes.ini
+	Call ClearEnvironmentVar ("SERVERSETUP_ORG_CERTIFIERIDFILEPATH")
+	Call ClearEnvironmentVar ("SERVERSETUP_ORG_CERTIFIERPASSWORD")
+	Call ClearEnvironmentVar ("SERVERSETUP_ORG_SAFEIDFILEPATH")
+	Call ClearEnvironmentVar ("SERVERSETUP_CLUSTER_NAME")
+	Call ClearEnvironmentVar ("SERVERSETUP_AUTOUPDATE_MODE")
+
+	Call SetupCrossCert (CertifierPath, Password, SafeID)
+	Call SetupCluster   (ClusterName)
+	Call ConfigureAutoUpdate (ProductInfoMode)
+
+	Exit Sub
+
+ErrorHandler:
+
+	LogMessage "OneTouchSetup - Error " & Cstr(Err) & ": " & Error$ & " at line " & Cstr(Erl)
+
+	Exit Sub
+
+End Sub
+
+
+Sub SetupCluster (ClusterName As String)
+
+	Dim adminp As NotesAdministrationProcess
+
+	On Error GoTo ErrorHandler
+
+	If ("" = ClusterName) Then
+		Exit Sub
+	End If
+
+	LogMessage "Adding server to cluster: "  + ClusterName
+
+	Set adminp = gSession.CreateAdministrationProcess ("")
+	Call adminp.AddServerToCluster (gSession.Username, ClusterName)
+
+	Exit Sub
+
+ErrorHandler:
+
+	LogMessage "SetupCluster - Error " & Cstr(Err) & ": " & Error$ & " at line " & Cstr(Erl)
+
+	Exit Sub
+
+End Sub
+
+
+Sub SetupCrossCert (CertifierPath As String, Password As String, SafeID As String)
+
+	Dim reg As New NotesRegistration
+
+	On Error GoTo ErrorHandler
+
+	If ("" = CertifierPath) Or ("" = Password) Or ("" = SafeID) Then
+		Exit Sub
+	End If
+
+	LogMessage "Creating cross certificate for " + SafeID
+
+	reg.RegistrationServer = ""
+	reg.IsNorthAmerican    = False
+	reg.CertifierIDFile    = CertifierPath
+	reg.Expiration         = Today + 3650
+
+	Call reg.CrossCertify (SafeID, Password, "")
+
+	Exit Sub
+
+ErrorHandler:
+
+	LogMessage "SetupCrossCert - Error " & Cstr(Err) & ": " & Error$ & " at line " & Cstr(Erl)
+
+	Exit Sub
+
+End Sub
+
+
+Sub ConfigureAutoUpdate (ProductInfoMode as String)
+
+	Dim db   As NotesDatabase
+	Dim doc  As NotesDocument
+	Dim item As NotesItem
+
+	On Error GoTo ErrorHandler
+
+	if ("" = ProductInfoMode) Then
+		Exit Sub
+	End If
+
+	Set db = New NotesDatabase( "", "names.nsf" )
+
+	Set doc = db.GetProfileDocument ("DirectoryProfile")
+
+	If (doc is nothing) Then
+		LogMessage "Cannot update directory profile"
+		Exit Sub
+	End If
+
+	Call doc.ReplaceItemValue ("ProductInfoDesignatedServer", gSession.Username)
+
+	if ("1" = ProductInfoMode) Then
+		ProductInfoMode = "U"
+	End If
+
+	Set item = doc.ReplaceItemValue ("ProductInfoMode", ProductInfoMode)
+	item.isNames = True
+
+	call doc.save (true, false)
+
+	Exit Sub
+
+ErrorHandler:
+
+	LogMessage "ConfigureAutoUpdate - Error " & Cstr(Err) & ": " & Error$ & " at line " & Cstr(Erl)
+
+	Exit Sub
+
+End Sub
+
+' --- Helpers ---
+
+Sub LogMessage (MessageText As String) 
+
+	Print "OneTouchSetup: "  + MessageText
+
+End Sub
+
+
+Function CheckFileExists (FilePath As String) As Boolean
+
+	If ( "" = Dir$(FilePath)) Then
+		CheckFileExists = False
+	Else
+		CheckFileExists = True
+	End If
+
+End Function
+
+
+Function BuildAndCheckPath (FileName As String) As String
+
+	' Return absolute path based on Data Directory and check if file exists, else return empty string
+	Dim bIsAbsolute As Boolean
+
+	bIsAbsolute = False
+	BuildAndCheckPath = ""
+
+	On Error GoTo ErrorHandler
+
+	If ("" = FileName) Then
+		Exit Function
+	End If
+
+	If ("/" = gPathSep) Then
+		If (gPathSep = Left$(FileName, 1)) Then
+			bIsAbsolute = True
+		End If
+	Else
+		If (":" = Left$(FileName, 2)) Then
+			bIsAbsolute = True
+		End If
+	End If
+
+	If (False = bIsAbsolute) Then
+		BuildAndCheckPath = gDataDirPath + gPathSep + FileName
+	End If
+
+	If (False = CheckFileExists (BuildAndCheckPath)) Then
+		BuildAndCheckPath = ""
+	End If
+
+	Exit Function
+
+ErrorHandler:
+
+	LogMessage "BuildAndCheckPath - Error " & Cstr(Err) & ": " & Error$ & " at line " & Cstr(Erl)
+
+	Exit Function
+
+End Function
+
+
+Function GetEnvironvarWithDefault (EnvironmentName As String, DefaultValue As String) As String
+
+	GetEnvironvarWithDefault = gSession.GetEnvironmentString (EnvironmentName, True)
+
+	If ( "" = GetEnvironvarWithDefault) Then
+		GetEnvironvarWithDefault = DefaultValue
+	End If
+
+End Function
+
+
+Sub ClearEnvironmentVar (EnvironmentName As String)
+
+	Call gSession.SetEnvironmentVar (EnvironmentName, "", True)
+
+End Sub
+
+
