@@ -43,7 +43,7 @@ A ready to use **otshelper.zip** is included in this folder and can be downloade
 
 
 ```
-CustomNotesdataZip: https://github.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/blob/main/OneTouchAgent/otshelper.zip
+CustomNotesdataZip: https://raw.githubusercontent.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/main/OneTouchAgent/otshelper.zip
 ```
 
 A Notes Safe.ID can also be passed in the same way. The file is copied into the data directory of the server and can be used in an OTS setup agent.
