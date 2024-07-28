@@ -5,6 +5,7 @@ This database provides an agent to complement the OTS Application Setup and can 
 The functionality is triggered by Notes environment parameters, which need to be set via OTS (not the OS environment variables).  
 The helper agent deletes those environment variables after setup *).
 
+The following functionality can be configured via a combination of environment variables and OTS JSON settings:
 
 ## Add Server to cluster
 
@@ -25,7 +26,7 @@ SERVERSETUP_AUTOUPDATE_MODE=1
 ## Cross certify a safe.id
 
 Cross certify an ID which is copied into the container at run-time.  
-The Domino container image provides an environment variable to download a safe.id into notesdata from a remote HTTPS location.  
+The Domino container image provides an environment variable to download a safe.id into the server's **notesdata** from a remote HTTPS location.  
 If no path is specified, Notes data directory is assumed.
 
 ```
@@ -42,7 +43,7 @@ A ready to use **otshelper.zip** is included in this folder and can be downloade
 
 
 ```
-CustomNotesdataZip: https://raw.githubusercontent.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/main/OnTouchAgent/otshelper.zip
+CustomNotesdataZip: https://github.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/blob/main/OneTouchAgent/otshelper.zip
 ```
 
 A Notes Safe.ID can also be passed in the same way. The file is copied into the data directory of the server and can be used in an OTS setup agent.
