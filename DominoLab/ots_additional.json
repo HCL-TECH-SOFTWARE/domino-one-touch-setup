@@ -151,7 +151,11 @@
               "ConnectionType": "0",
               "ConnectionRecordFirst": "1",
               "Interval": 1,
-              "Filenames": [ "names.nsf", "admin4.nsf" ]
+              "Filenames": [ "names.nsf", "admin4.nsf" ],
+              "Schedule": {
+                "type": "datetime",
+                "value": [ [ "T000000,00", "T235959,00" ] ]
+              }
             }
           },
 
