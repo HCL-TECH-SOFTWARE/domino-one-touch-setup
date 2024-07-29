@@ -163,6 +163,7 @@ Sub ConfigureAutoUpdate (ProductInfoMode as String)
 	Set item = doc.ReplaceItemValue ("ProductInfoMode", ProductInfoMode)
 	item.isNames = True
 
+	call doc.ComputeWithForm (False, False)
 	call doc.save (true, false)
 
 	Exit Sub
