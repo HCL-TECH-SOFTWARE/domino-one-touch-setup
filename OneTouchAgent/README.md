@@ -2,10 +2,10 @@
 # OTS Helper Agent
 
 This database provides an agent to complement the OTS Application Setup and can be invoked during OTS JSON setup.  
-The functionality is triggered by Notes environment parameters, which need to be set via OTS (not the OS environment variables).  
-The helper agent deletes those environment variables after setup *).
-
-The following functionality can be configured via a combination of environment variables and OTS JSON settings:
+The functionality is triggered by Linux or Notes environment variables.  
+Linux environment variables are configured for example in environment variables of a container.  
+In some cases it would be more convenient to specify them instead via notes.ini variables, which are deleted once consumed.  
+Notes.ini variables are configured in the OTS setup part.
 
 ## Add Server to cluster
 
@@ -73,5 +73,3 @@ The following OTS JSON application configuration can be used to invoke the agent
     ]
   }
 ```
-
-*) CertID and password need to be protected in a production environment.

@@ -1,5 +1,5 @@
 
-' --- Supported environment variables ---
+' --- Supported Notes.ini settings or OS environment variables  ---
 '
 ' SERVERSETUP_CLUSTER_NAME
 ' SERVERSETUP_AUTOUPDATE_MODE
@@ -48,12 +48,12 @@ Sub OneTouchSetup()
 
 	' Get setup parameters passed via notes.ini
 
-	Password        = GetEnvironvarWithDefault ("SERVERSETUP_ORG_CERTIFIERPASSWORD", "")
-	ClusterName     = GetEnvironvarWithDefault ("SERVERSETUP_CLUSTER_NAME", "")
-	ProductInfoMode = GetEnvironvarWithDefault ("SERVERSETUP_AUTOUPDATE_MODE", "")
+	Password        = GetEnvWithDefault ("SERVERSETUP_ORG_CERTIFIERPASSWORD", "")
+	ClusterName     = GetEnvWithDefault ("SERVERSETUP_CLUSTER_NAME", "")
+	ProductInfoMode = GetEnvWithDefault ("SERVERSETUP_AUTOUPDATE_MODE", "")
 
-	CertifierPath   = BuildAndCheckPath (GetEnvironvarWithDefault ("SERVERSETUP_ORG_CERTIFIERIDFILEPATH", "cert.id"))
-	SafeID          = BuildAndCheckPath (GetEnvironvarWithDefault ("SERVERSETUP_ORG_SAFEIDFILEPATH",      "safe.id"))
+	CertifierPath   = BuildAndCheckPath (GetEnvWithDefault ("SERVERSETUP_ORG_CERTIFIERIDFILEPATH", "cert.id"))
+	SafeID          = BuildAndCheckPath (GetEnvWithDefault ("SERVERSETUP_ORG_SAFEIDFILEPATH",      "safe.id"))
 
 	' Remove setup parameters from notes.ini
 	Call ClearEnvironmentVar ("SERVERSETUP_ORG_CERTIFIERIDFILEPATH")
@@ -241,6 +241,21 @@ ErrorHandler:
 End Function
 
 
+Function GetOsEnvironvarWithDefault (EnvironmentName As String, DefaultValue As String) As String
+
+	Dim ret As Variant
+
+	ret = Evaluate ({@GetMachineInfo ([SysEnvVariable];"} + EnvironmentName + {")})
+
+	If ("" = ret(0)) Then
+		GetOsEnvironvarWithDefault = DefaultValue
+	Else
+		GetOsEnvironvarWithDefault = ret(0)
+	End If
+
+End Function
+
+
 Function GetEnvironvarWithDefault (EnvironmentName As String, DefaultValue As String) As String
 
 	GetEnvironvarWithDefault = gSession.GetEnvironmentString (EnvironmentName, True)
@@ -252,10 +267,23 @@ Function GetEnvironvarWithDefault (EnvironmentName As String, DefaultValue As St
 End Function
 
 
+Function GetEnvWithDefault (EnvironmentName As String, DefaultValue As String) As String
+
+	'Check notes environment variable first, then OS environment variable
+
+	GetEnvWithDefault = GetEnvironvarWithDefault (EnvironmentName, "")
+
+	if ("" <> GetEnvWithDefault) Then
+		Exit Function
+	End If
+
+	GetEnvWithDefault = GetOsEnvironvarWithDefault (EnvironmentName, DefaultValue)
+
+End Function
+
+
 Sub ClearEnvironmentVar (EnvironmentName As String)
 
 	Call gSession.SetEnvironmentVar (EnvironmentName, "", True)
 
 End Sub
-
-
