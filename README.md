@@ -196,7 +196,7 @@ Example:
 
 # Validate a OTS JSON file
 
-The first step to validate the JSON file is to check if the JSON file has a valid JSON format.
+The first step to validate the JSON file is to check if the JSON file has a valid JSON format (for example using the JQ tool).
 In addition to this basic validation, the JSON file can be checked against the OTS schema shipped with Domino.
 
 The JSON schema file is located in the Domino binary directory.
@@ -300,6 +300,8 @@ The database can be also signed via adminp by the server.
 
 
 ```
+{
+  "appConfiguration": {
   {
     "databases": [
       {
@@ -311,36 +313,37 @@ The database can be also signed via adminp by the server.
       }
     ]
   }
+}
 ```
 
 
 ## Modifying access control of a database (ACL)
 
-OTS allows to modify the the ACL of a new or existing database including ACL roles and all type of ACL settings.
+OTS allows to modify the the ACL of a **new** or **existing** database including ACL roles and all type of ACL settings.
 
-Example ACL for database ACL settings
+### Example: Add manager access to log.nsf for `*/O=Lotus`
 
 ```
-                "ACL": {
-                    "roles": [ "Admin" ],
-                    "ACLEntries": [
-                        {
-                            "name": "Full Admin/DominoLab",
-                            "level": "manager",
-                            "type": "person",
-                            "canCreateDocuments": true,
-                            "canCreateLSOrJavaAgent": true,
-                            "canCreatePersonalAgent": true,
-                            "canCreatePersonalFolder": true,
-                            "canCreateSharedFolder": true,
-                            "canDeleteDocuments": true,
-                            "canReplicateOrCopyDocuments": true,
-                            "isPublicReader": true,
-                            "isPublicWriter": true,
-                            "roles": [ "Admin" ]
-                        }
-                    ]
-                },
+{
+  "appConfiguration": {
+    "databases": [
+      {
+        "filePath": "log.nsf",
+        "action": "update",
+        "ACL": {
+          "ACLEntries": [
+            {
+              "name": "*/O=Lotus",
+              "level": "manager",
+              "canReplicateOrCopyDocuments": true,
+              "canDeleteDocuments": true
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
 ```
 
 
@@ -370,6 +373,13 @@ The search operation searches the existing document for which the response docum
 Example document:
 
 ```
+{
+  "appConfiguration": {
+    "databases": [
+      {
+        "filePath": "names.nsf",
+        "action": "update",
+
         "documents": [
           {
             "action": "update",
@@ -387,6 +397,10 @@ Example document:
             }
           }
         ]
+      }
+    ]
+  }
+}
 ```
 
 ## Document items
@@ -423,6 +437,19 @@ Item flags can be also specified explicitly as the following example shows.
 
 ## Date ranges support in Domino 14
 
+Example schedule for a connection document
+
+```
+     "Schedule": {
+          "type":"datetime",
+          "value": [
+            [
+              "T000000,00",
+              "T235959,00"
+            ]
+          ]
+        },
+```
 
 # What's new in Domino 12.0.2
 
@@ -440,4 +467,3 @@ Be sure to provide the fully qualified DNS host name (FQDN) to ensure that the J
 - Create replicas on additional servers
 - FindDocument criteria can be specified by using a formula
 - An additional server can be created using files in a "seed" directory if the first server is unavailable
-
