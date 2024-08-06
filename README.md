@@ -2,25 +2,27 @@
 
 # Domino One Touch Setup (OTS)
 
-[Domino One Touch Setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch.html) (in short: OTS) was introduced in Domino 12.0 to simplify Domino first and additional server setup.  
-OTS is of special interest when automating a Domino Container setup on [Docker](https://www.docker.com/) or [Podman](https://podman.io/) and [Kubernetes](https://kubernetes.io/). But it is also helpful for normal servers on Windows, Linux and AIX.  
+[Domino One Touch Setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch.html) (in short: OTS) was introduced in Domino 12.0 to simplify Domino first and additional server setup.  
+OTS is of special interest when automating a Domino Container setup on [Docker](https://www.docker.com/) or [Podman](https://podman.io/) and [Kubernetes](https://kubernetes.io/).  
+But it is also helpful for normal servers on Windows, Linux and AIX.  
 For business partners OTS opens a very flexible way to include their application setup during Domino setup.
 
 There are two different methods to setup a server:
 
 
-## Environment variable setup
+## 1. Environment variable setup
 
 OTS Environment variable setup is a very easy way to setup a Domino server.
 The setup provides already more setup options then the classical Domino setup including CertMgr and ID Vault configuration.  
 Environment variables are read from the environment variables specified before starting the server.
 
-Check the [OTS Environment variable setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch_preparing_sysenv.html) documentation for details.
+Check the [OTS Environment variable setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch_preparing_sysenv.html) documentation for details.
 
 
-## JSON file configuration setup
+## 2. JSON file configuration setup
 
-[OTS JSON file setup](https://help.hcltechsw.com/domino/12.0.2/admin/inst_onetouch_preparing_json.html) uses a JSON description of the setup with many additional options including an application configuration, which can be even used to create databases, create and update documents.
+[OTS JSON file setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch_preparing_json.html) uses a JSON description of the setup with many additional options.
+OTS includes an application configuration, which can be even used to create databases, create and update documents.
 
 
 # How to invoke OTS
@@ -65,7 +67,7 @@ A very basic JSON configuration contains the following sections.
 
 - **server** defines the basic server information
 - **network** defines the network configuration
-- **org** organisation configuration
+- **org** organization configuration
 - **admin** admin settings
 - **notesINI** notes.ini settings for the server
 - **security** settings
@@ -217,11 +219,11 @@ The automated TLS Credentials setup is only intended for first servers.
 
 For a first server you can either use A Micro CA or import TLS Credentials.
 
-### Create a TLS Credential using a MiroCA
+### Create a TLS Credential using a MicroCA
 
-Use **dominoMicroCA** to create a Domino Micro Certificate Authority and use it to create a TLS certificate  
-Because MicroCA certificates are mostly used for setup, there is usually no need for a custom configuration.
-But additional parameters are available including ECDSA keys.
+Use **dominoMicroCA** to create a Domino Micro Certificate Authority (CA) to create a TLS certificate.  
+Because MicroCA certificates are mostly used for setup only, there is usually no need for a custom configuration.
+But additional parameters are available. This includes support modern ECDSA keys.
 
 ```
     "security": {
@@ -296,7 +298,7 @@ The `action` determines if a database is updated or created.
 ## Creating a database from template
 
 Usually a new database is created from template.
-The database can be also signed via adminp by the server.
+The database can be also signed via adminp using the same kind of request which can be invoked via Admin client for a running server.
 
 
 ```
@@ -361,7 +363,7 @@ Beginning with Domino 14 also search formulas are supported.
 ## Response documents
 
 To create a response document specify `createResponse` instead of `create`. 
-The search operation searches the existing document for which the response document is created.
+The search operation finds the existing document for which the response document is created.
 
 
 ## Domino 14 formula example
@@ -370,7 +372,7 @@ The search operation searches the existing document for which the response docum
 "findDocument": "Form=\"Main Topic\" & Subject=\"This is a main topic\""
 ```
 
-Example document:
+Example: Server document:
 
 ```
 {
@@ -411,7 +413,7 @@ In most cases items are visible in the form and item flags can be just set using
 - Text values are resulting text items with the summary flag set
 - Numeric values are resulting in number fields
 - Arrays result in text lists and number ranges
-- Date values are represented in  ISO-8601  format (example: "20210728dirT162308,50-04")'.
+- Date values are represented in  ISO-8601  format (example: "20240721T162308,50-04")'.
 
 
 ## Specifying item flags
@@ -437,7 +439,9 @@ Item flags can be also specified explicitly as the following example shows.
 
 ## Date ranges support in Domino 14
 
-Example schedule for a connection document
+Since Domino 14 date ranges can be specified using the following format.
+
+### Example schedule for a connection document
 
 ```
      "Schedule": {
@@ -467,3 +471,4 @@ Be sure to provide the fully qualified DNS host name (FQDN) to ensure that the J
 - Create replicas on additional servers
 - FindDocument criteria can be specified by using a formula
 - An additional server can be created using files in a "seed" directory if the first server is unavailable
+
