@@ -9,25 +9,19 @@ For business partners OTS opens a very flexible way to include their application
 
 There are two different methods to setup a server:
 
+- OTS Environment variable setup
+- OTS JSON file setup
 
-## 1. Environment variable setup
 
-OTS Environment variable setup is a very easy way to setup a Domino server.
+## 1. OTS Environment variable setup
+
+OTS Environment variable setup is a very easy way to setup a Domino server.  
 The setup provides already more setup options then the classical Domino setup including CertMgr and ID Vault configuration.  
 Environment variables are read from the environment variables specified before starting the server.
 
 Check the [OTS Environment variable setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch_preparing_sysenv.html) documentation for details.
 
-
-## 2. JSON file configuration setup
-
-[OTS JSON file setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch_preparing_json.html) uses a JSON description of the setup with many additional options.
-OTS includes an application configuration, which can be even used to create databases, create and update documents.
-
-
-# How to invoke OTS
-
-## Environment variable setup
+### How to invoke OTS with environment variables
 
 To setup a server using environment variables, define all the variables and add the following variable to trigger the setup on server start.
 
@@ -35,21 +29,52 @@ To setup a server using environment variables, define all the variables and add 
 SetupAutoConfigure=1
 ```
 
-## JSON setup
 
-To trigger a JSON setup specify the full path to the JSON file in the following way.
-
-### Linux/AIX
+### Example Domino first server setup
 
 ```
-/opt/hcl/domino/bin/server -autoconf /local/notesdata/setup.json
+SERVERSETUP_SERVER_TYPE=first
+SERVERSETUP_ADMIN_FIRSTNAME=John
+SERVERSETUP_ADMIN_LASTNAME=Doe
+SERVERSETUP_ADMIN_PASSWORD=my-secure-admin-password
+SERVERSETUP_ADMIN_IDFILEPATH=/local/notesdata/admin.id
+SERVERSETUP_SERVER_TITLE="Domino AdminServer"
+SERVERSETUP_SERVER_NAME=my-domino-server
+SERVERSETUP_NETWORK_HOSTNAME=my-domino-server.acme.com
+SERVERSETUP_ORG_CERTIFIERPASSWORD=my-secure-certifier-password
+SERVERSETUP_SERVER_DOMAINNAME=Acme
+SERVERSETUP_ORG_ORGNAME=Acme
+
+SERVERSETUP_NOTESINI_SERVERTASKS=replica,router,update,amgr,adminp,http,certmgr
+SERVERSETUP_SECURITY_ACL_PROHIBITANONYMOUSACCESS=true
+SERVERSETUP_SECURITY_ACL_ADDLOCALDOMAINADMINS=true
 ```
 
-### Windows
+### Example Domino additional server setup
 
 ```
-c:\domino\bin\nserver.exe -autoconf c:\notesdata\setup.json
+SERVERSETUP_SERVER_TYPE=additional
+SERVERSETUP_ADMIN_CN="John Doe"
+SERVERSETUP_SERVER_IDFILEPATH=server.id
+SERVERSETUP_SERVER_TITLE="Domino 2nd server"
+SERVERSETUP_SERVER_NAME=my-2nd-domino-server
+SERVERSETUP_NETWORK_HOSTNAME=my-2nd-domino-servername.acme.com
+SERVERSETUP_SERVER_DOMAINNAME=Acme
+SERVERSETUP_ORG_ORGNAME=Acme
+SERVERSETUP_SECURITY_ACL_PROHIBITANONYMOUSACCESS=true
+SERVERSETUP_SECURITY_ACL_ADDLOCALDOMAINADMINS=true
+
+SERVERSETUP_EXISTINGSERVER_CN=my-domino-server
+SERVERSETUP_EXISTINGSERVER_HOSTNAMEORIP=my-domino-server.acme.com
+
+SERVERSETUP_NOTESINI_SERVERTASKS=replica,router,update,amgr,adminp,http,certmgr
 ```
+
+
+## 2. OTS JSON file setup
+
+[OTS JSON file setup](https://help.hcl-software.com/domino/14.0.0/admin/inst_onetouch_preparing_json.html) uses a JSON description of the setup with many additional options.
+OTS includes an application configuration, which can be even used to create databases, create and update documents.
 
 
 # JSON format
