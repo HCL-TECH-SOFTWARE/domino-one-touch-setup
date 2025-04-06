@@ -1,7 +1,7 @@
 # One Touch Linux and Template Setup
 
 A JSON file is a pre-defined configuration of your Domino server.
-The parameters changing are usually just the basic variables like the server name, organization and other basic setup options.
+The parameters which would need to change for each server are usually just the basic variables like the server name, organization and other basic setup options.
 
 A common approach is to add variables into configuration files to allow to generalize configurations.
 
@@ -12,7 +12,7 @@ Example:
 
 ```"name": "{{ SERVERSETUP_SERVER_NAME }}",```
 
-The syntax used is the same syntax you might know from ([Helm Charts](https://helm.sh/) in the container world or in [Ansible](https://www.ansible.com/) automation scripts.
+The syntax used is very similar to ([Helm Charts](https://helm.sh/) in the container world or in [Ansible](https://www.ansible.com/) automation scripts.
 
 The variables used are the same environment variables defined for an environment variable setup.
 This combines the flexibility and easy of environment variable setup with a JSON file configuration.
@@ -45,5 +45,4 @@ If a `DominoAutoConfigTemplate.json` file is found in the data directory variabl
 
 The container image also supports an automated download option for OTS template files using `SetupAutoConfigureTemplateDownload`.
 
-You find pre-defined server configurations in the [Setup](https://github.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/tree/main/setup) directory.
-
+You find pre-defined server configurations in the (Setup)[https://github.com/HCL-TECH-SOFTWARE/domino-one-touch-setup/tree/main/setup] directory.
