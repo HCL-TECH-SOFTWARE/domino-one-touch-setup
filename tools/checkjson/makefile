@@ -1,29 +1,13 @@
-############################################################################
-# Copyright Nash!Com, Daniel Nashed 2022-2023 - APACHE 2.0 see LICENSE
-############################################################################
+XX = g++
+CXXFLAGS = -O2 -Wall 
+TARGET = checkjson 
+SRC = checkjson.cpp
 
-# Requires: rapidjson-devel / rapidjson-dev
+all: $(TARGET)
 
-CC=g++
-CFLAGS= -g -Wall -c -fPIC -fpermissive
-LIBS=
-
-PROGRAM=checkjson
-
-all: $(PROGRAM)
-
-$(PROGRAM): $(PROGRAM).o
-	 $(CC) -o $(PROGRAM) $(PROGRAM).o $(LIBS)
-
-$(PROGRAM).o: $(PROGRAM).cpp
-	$(CC)  $(CFLAGS) $(PROGRAM).cpp -DLINUX -DUNIX
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(SRC)
 
 clean:
-	rm -f $(PROGRAM) *.o
+	rm -f $(TARGET) *.o
 
-test: all
-	./$(PROGRAM)
-
-install: all
-	cp ./$(PROGRAM) /usr/bin/
-	chmod 555 /usr/bin/$(PROGRAM)

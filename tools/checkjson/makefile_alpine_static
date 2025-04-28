@@ -1,0 +1,18 @@
+CXX = g++
+CXXFLAGS = -O2 -Wall -static
+LDFLAGS = -lssl -lcrypto 
+TARGET = checkjson 
+SRC = checkjson.cpp
+OBJ = checkjson.o
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
+
+$(OBJ): $(SRC)
+	$(CXX) $(CXXFLAGS) -c $(SRC) -o $(OBJ)
+
+clean:
+	rm -f $(TARGET) $(OBJ)
+
