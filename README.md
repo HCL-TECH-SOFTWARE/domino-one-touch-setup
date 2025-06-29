@@ -192,6 +192,9 @@ For one-touch setup to work, the seed directory must include copies of at least 
 The following files must be in the "root" of the seed directory: names.nsf, admin4.nsf, events4.nsf, and certstore.nsf.
 If the first server is configured to use directory assistance, the seed directory must also include da.nsf.
 
+**Important Note**: The `sourceDatabasePath` directory must end with a final path separator.
+
+
 Example:
 
 ```
@@ -211,10 +214,10 @@ Example:
       "orgName": "DominoLab"
     },
     "admin": {
-      "CN": "John Doe"
+      "CN": "LocalDomainAdmins"
     },
     "existingServer": {
-      "sourceDatabasePath": "/local/setup"
+      "sourceDatabasePath": "/local/setup/"
     }
   }
 }
