@@ -388,6 +388,16 @@ To find an existing document usually a `findDocument` element is specified.
 Beginning with Domino 14 also search formulas are supported.
 
 
+**Example for Domino 14+**
+
+To find a server document before Domino 14.0, the server name had to be specified.
+Starting with Domino 14.0 now the server document could just use `@Username` to use the current server name during setup.
+
+```
+"findDocument": "Form = {Server} & ServerName = @Username",
+```
+
+
 ## Response documents
 
 To create a response document specify `createResponse` instead of `create`. 
